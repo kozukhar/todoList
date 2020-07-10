@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery ToDoList</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #wrapper {
+            background: gray;
+            padding: 15px;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        input {
+            width: 50%;
+        }
+
+        button {
+            width: 23%;
+        }
+
+        button, input {
+            padding: 5px;
+            border: 2px solid lightgray;
+            color: gray;
+            font-size: 20px;
+        }
+
+        button:hover {
+            background: burlywood;
+            color: black;
+            font-weight: bolder;
+        }
+
+        ul {
+            position: relative;
+            padding: 0;
+            list-style: none;
+            width: 98%;
+        }
+
+        li {
+            padding: 10px;
+            position: relative;
+            background: lightgray;  
+            color: gray;
+            font-size: 20px;
+        }
+
+        li:hover {
+            background-color: burlywood;
+            color: black;
+        }
+
+        li button {
+            width: 10%;
+            border: none;
+            height: 43px;
+        }
+
+        .done {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .delete {
+            position: absolute;
+            top: 0;
+            right: 95px;
+        }
+
+        .edit {
+            position: absolute;
+            top: 0;
+            right: 190px;
+        }
+
+        .checked {
+            text-decoration: line-through;
+        }
+
+        .save {
+            height: 35px;
+        }
+
+    </style>
+</head>
+<div id="wrapper">
+    <h1>ToDoList</h1>
+    <input type="text" placeholder="Input new task" id="newTask" value="">
+    <button id="addTask">Add Task</button>
+    <button id="showHide">show/hide</button>
+    <ul id="tasks"></ul>
+</div>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $('#tasks').html(localStorage.saveTask);
+    //Функция для создания новой задачи
+    function createnewTask() {
+        if (null === $('#newTask').val() || 0 === $('#newTask').val().trim().length) {
+            return;
+        } else {
+            var liElement = $('<li></li>').appendTo($('#tasks'));
+            $('<span></span>').text($('#newTask').val()).appendTo(liElement);
+            $('<button class="done">Done</button>').appendTo(liElement);
+            $('<button class="delete">Delete</button>').appendTo(liElement);
+            $('<button class="edit">Edit</button>').appendTo(liElement);
+            $('#newTask').val('');
+            saveStorage();
+        }
+    }
+
+    //вызов функции createNewTask при клике на кнопку Add
+    $('#addTask').on('click', createnewTask);
+    //навешивание события на кнопку Done
+    $('#tasks').on('click', '.done', function () {
+        $(this).parent().toggleClass('checked');
+        saveStorage();
+    });
+    //навешивание события на кнопку Delete
+    $('#tasks').on('click', '.delete', function () {
+        $(this).parent().remove();
+        saveStorage();
+    });
+    //  Навешивание события на кнопку edit
+    $('#tasks').on('click', '.edit', function () {
+        var list = $(this).parent();
+        list.find('button').hide();
+        list.find('span').hide();
+        $('<input type="text" class="editInput">').appendTo($(list));
+        $('<button class="save">Save</button>').appendTo($(list));
+        saveStorage();
+    });
+    //Навешивание события на кнопку save
+    $('#tasks').on('click', '.save', function () {
+        var listSave = $(this).parent();
+        var editInput = $('.editInput').val();
+        listSave.find('span').text(editInput).appendTo($(listSave));
+        listSave.find('span').show();
+        listSave.find('.editInput').hide();
+        listSave.find('button').show();
+        $('.save').hide();
+        listSave.find('.editInput').remove();
+        saveStorage();
+    });
+    //навешивание события на кнопку show/hide
+    $('#showHide').on('click', function () {
+        var completedTasks = $('li.checked');
+        if (completedTasks.length === 0) {
+            var hiddenTasks = $('li.done');
+            hiddenTasks.show();
+            hiddenTasks.removeClass('done');
+            hiddenTasks.addClass('checked');
+        } else {
+            completedTasks.hide();
+            completedTasks.removeClass('checked');
+            completedTasks.addClass('done');
+        }
+        saveStorage();
+    });
+
+    // функция LocalStorage
+    function saveStorage() {
+        localStorage.saveTask = $('#tasks').html();
+    }
+</script>
+</body>
+</html>
